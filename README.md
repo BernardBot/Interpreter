@@ -1,2 +1,2 @@
 # Interpreter
-Simple calculoter for command line
+Simple calculator for command line
