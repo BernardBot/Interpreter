@@ -14,7 +14,7 @@ public class Main {
         String input;
         String output;
 
-        System.out.println("Press q to quit");
+        System.out.println("Press 'q' to quit");
 
         //program loop
         System.out.print("\nEnter calculation: ");
@@ -73,17 +73,10 @@ public class Main {
     }
 
     static Expr parse(String s) throws Exception {
+        assert s != null;
         // empty base case: ""
         if (s.isEmpty()) {
             throw new Exception("ERROR!\nempty string");
-        }
-        // float base case : "1"
-        if (s.length() == 1) {
-            if (s.matches("\\d")) {
-                return new Num(Float.valueOf(s));
-            } else {
-                throw new Exception("ERROR!\nloose operator\n[String s]\t" + s);
-            }
         }
 
         // floating point numbers: "1000", "9.3"
@@ -91,48 +84,49 @@ public class Main {
             return new Num(Float.valueOf(s));
         }
 
+        //TODO: fix brackets
+        // brackets: "(e)"
+        if (s.matches("\\(.+?\\)")) {
+            return new Brack(parse(s.substring(1, s.length() - 1)));
+        }
         // minus: "-e"
         if (s.matches("-.+")) {
             return new Min(parse(s.substring(1)));
         }
-        //TODO: fix brackets
-        // brackets: "(e)"
-        if (s.matches("\\(.*?\\)")) {
-            return new Brack(parse(s.substring(1, s.length() - 1)));
+        // plus: "e+e"
+        if (s.matches(".+\\+.+")) {
+            int i = s.lastIndexOf('+');
+            return new Plus(parse(s.substring(0, i)), parse(s.substring(i + 1)));
         }
-        // power: "e^e"
-        if (s.matches(".+\\^.+")) {
-            int i = s.indexOf('^');
-            return new Pow(parse(s.substring(0, i)), parse(s.substring(i + 1)));
+        // subtract: "e-e"
+        if (s.matches(".+-.+")) {
+            //TODO: fix
+            int i = s.indexOf('-');
+            return new Sub(parse(s.substring(0, i)), parse(s.substring(i + 1)));
+        }
+        // multiply: "e*e"
+        if (s.matches(".+\\*.+")) {
+            int i = s.lastIndexOf('*');
+            return new Mul(parse(s.substring(0, i)), parse(s.substring(i + 1)));
+        }
+        // modulo "e%e"
+        if (s.matches(".+%.+")) {
+            int i = s.lastIndexOf('%');
+            return new Mod(parse(s.substring(0, i)), parse(s.substring(i + 1)));
+        }
+        // divide: "e/e"
+        if (s.matches(".+/.+")) {
+            int i = s.lastIndexOf('/');
+            return new Div(parse(s.substring(0, i)), parse(s.substring(i + 1)));
         }
         // fac: "!e"
         if (s.matches("!.+")) {
             return new Fac(parse(s.substring(1)));
         }
-        // multiply: "e*e"
-        if (s.matches(".+\\*.+")) {
-            int i = s.indexOf('*');
-            return new Mul(parse(s.substring(0, i)), parse(s.substring(i + 1)));
-        }
-        // divide: "e/e"
-        if (s.matches(".+\\/.+")) {
-            int i = s.indexOf('/');
-            return new Div(parse(s.substring(0, i)), parse(s.substring(i + 1)));
-        }
-        // plus: "e+e"
-        if (s.matches(".+\\+.+")) {
-            int i = s.indexOf('+');
-            return new Plus(parse(s.substring(0, i)), parse(s.substring(i + 1)));
-        }
-        // subtract: "e-e"
-        if (s.matches(".+\\-.+")) {
-            int i = s.indexOf('-');
-            return new Sub(parse(s.substring(0, i)), parse(s.substring(i + 1)));
-        }
-        // modulo "e%e"
-        if (s.matches(".+\\%.+")) {
-            int i = s.indexOf('%');
-            return new Mod(parse(s.substring(0, i)), parse(s.substring(i + 1)));
+        // power: "e^e"
+        if (s.matches(".+\\^.+")) {
+            int i = s.lastIndexOf('^');
+            return new Pow(parse(s.substring(0, i)), parse(s.substring(i + 1)));
         }
 
         throw new Exception(
